@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search Demo</title>
+</head>
+<body>
+  <h1>Google Programmable Search Demo</h1>
+  <input type="text" id="searchQuery" placeholder="Type your search query" />
+  <button onclick="performSearch()">Search</button>
+  <div id="results"></div>
+
+  <script>
+    async function performSearch() {
+      const query = document.getElementById("searchQuery").value;
+      if (!query) {
+        alert("Please enter a search query");
+        return;
+      }
+
+      try {
+        const response = await fetch(`http://localhost:3000/search?query=${encodeURIComponent(query)}`);
+        const data = await response.json();
+
+        if (data.error) {
+          document.getElementById("results").innerHTML = `<p>Error: ${data.error}</p>`;
+        } else {
+          displayResults(data.items);
+        }
+      } catch (error) {
+        document.getElementById("results").innerHTML = `<p>Error fetching results: ${error.message}</p>`;
+      }
+    }
+
+    function displayResults(items) {
+      const resultsDiv = document.getElementById("results");
+      resultsDiv.innerHTML = "";
+
+      if (!items || items.length === 0) {
+        resultsDiv.innerHTML = "<p>No results found</p>";
+        return;
+      }
+
+      items.forEach((item) => {
+        const result = document.createElement("div");
+        result.innerHTML = `
+          <h3><a href="${item.link}" target="_blank">${item.title}</a></h3>
+          <p>${item.snippet}</p>
+        `;
+        resultsDiv.appendChild(result);
+      });
+    }
+  </script>
+</body>
+</html>
